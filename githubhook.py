@@ -385,7 +385,7 @@ class GithubHook(BotPlugin):
         # us to call msg_generic, which is not what we want.
         message_function = 'msg_{0}'.format(event_type)
         if hasattr(self, message_function):
-                message = getattr(self, message_function)(body, repo)
+            message = getattr(self, message_function)(body, repo)
         else:
             message = self.msg_generic(body, repo, event_type)
 
