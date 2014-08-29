@@ -99,6 +99,44 @@ There is no way to manipulate the configuration through this command, only
 view it. Since its output contains sensitive data, like the tokens, it is
 restricted to users with administrative privileges.
 
+nginx
+^^^^^
+
+An example of nginx plus the webserver plugin:
+
+.. code-block:: text
+
+   !load Webserver
+   !config Webserver {'HOST': '127.0.0.1', 'PORT': 3141}
+   !reload GithubHook
+
+The nginx configured to handle https://your-endpoint.tld and proxy all
+requests to Err_:
+
+.. code-block:: nginx
+
+   server {
+       listen 443 ssl;
+       server_name your-endpoint.tld;
+
+       ssl_certificate /path/to/certificate.crt;
+       ssl_certificate_key /path/to/certificate.key;
+
+       root /tmp;
+
+       location / {
+           proxy_set_header  Host $host;
+           proxy_set_header  X-Real-IP $remote_addr;
+           proxy_set_header  X-Forwarded-For $proxy_add_x_forwarded_for;
+           proxy_set_header  X-Forwarded-Proto $scheme;
+           proxy_hide_header X-Powered-By;
+           proxy_pass http://127.0.0.1:3141;
+       }
+   }
+
+Usage
+-----
+
 route
 ^^^^^
 
