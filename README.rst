@@ -112,12 +112,12 @@ and the channel you want messages routed to:
 
 By default we will forward the following types of events to that channel:
 
-  * An issue is opened/closed/changed
-  * Someone comments on an issue
-  * Someone comments on a commit
-  * Code is pushed
-  * A pull request is raised
-  * A review is left on a change in a pull request
+* An issue is opened/closed/changed
+* Someone comments on an issue
+* Someone comments on a commit
+* Code is pushed
+* A pull request is raised
+* A review is left on a change in a pull request
 
 You can also pass in which events should be routed at creation time:
 
@@ -241,10 +241,10 @@ able to gracefully deal with them all just yet and bugs may arise.
 
 Right now we support:
 
-* pull_request
-* pull_request_review_comment
-* issues
-* push
+* `pull_request`
+* `pull_request_review_comment`
+* `issues`
+* `push`
 
 Feel free to submit pull requests for new features and fixes or issues if you
 encounter problems using this plugin.
@@ -253,3 +253,5 @@ License
 -------
 
 This code is licensed under the GPLv3, see the LICENSE file.
+
+.. _Err: http://errbot.net
