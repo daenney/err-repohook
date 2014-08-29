@@ -10,8 +10,8 @@ standard library.
 
 The supported Python versions are:
 
-  * Python 2.7.7+
-  * Python 3.3+
+* Python 2.7.7+
+* Python 3.3+
 
 Python versions prior to 2.7 aren't supported by Err_ and Python versions
 prior to Python 2.7.7 miss the `hmac.compare_digest` method to securely
@@ -241,10 +241,10 @@ able to gracefully deal with them all just yet and bugs may arise.
 
 Right now we support:
 
-  * pull_request
-  * pull_request_review_comment
-  * issues
-  * push
+* pull_request
+* pull_request_review_comment
+* issues
+* push
 
 Feel free to submit pull requests for new features and fixes or issues if you
 encounter problems using this plugin.
