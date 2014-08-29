@@ -435,7 +435,11 @@ class GithubHook(BotPlugin):
         if signature is None:
             return False
 
-        alg, sig = signature.split('=')
+        try:
+            alg, sig = signature.split('=')
+        except ValueError:
+            return False
+
         if alg != 'sha1':
             return False
 
