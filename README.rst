@@ -245,7 +245,7 @@ token.
 
 Should you wish to remove all routes, essentially removing the repository:
 
-.. codeb-lock:: text
+.. code-block:: text
 
    !github remove example/example
 
