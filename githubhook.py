@@ -200,7 +200,7 @@ class GithubHook(BotPlugin):
                        '/blob/master/README.rst for more information.')
         return '\n'.join(message)
 
-    @botcmd
+    @botcmd(admin_only=True)
     def github_config(self, *args):
         """Returns the current configuration of the plugin."""
         # pprint can't deal with nested dicts, json.dumps is aces.
