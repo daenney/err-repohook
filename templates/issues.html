@@ -10,9 +10,9 @@
   {%- endif -%}
   [Github] [{{repo}}] label {{act_value}} issue <a href="{{url}}">#{{number}}</a> ({{title}}) by {{user}}.
 {%- elif action == 'assigned' -%}
-[Github] [{{repo}}] issue <a href="{{url}}">#{{number}}</a> ({{title}}) {{action}} to {{assignee}} by {{user}}.
+  [Github] [{{repo}}] issue <a href="{{url}}">#{{number}}</a> ({{title}}) {{action}} to {{assignee}} by {{user}}.
 {%- elif action == 'unassigned' -%}
-[Github] [{{repo}}] issue <a href="{{url}}">#{{number}}</a> ({{title}}) {{action}} by {{user}}.
+  [Github] [{{repo}}] issue <a href="{{url}}">#{{number}}</a> ({{title}}) {{action}} by {{user}}.
 {%- else -%}
   [Github] [{{repo}}] unknown action: {{action}} for event type: issue received.
 {%- endif -%}
