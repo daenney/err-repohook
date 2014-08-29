@@ -379,9 +379,14 @@ class GithubHook(BotPlugin):
                 log.warn('Event received for {0} from {1} but could not validate it.'.format(repo, ip))
             abort(403)
 
-        try:
-            message = getattr(self, 'msg_{0}'.format(event_type))(body, repo)
-        except AttributeError:
+        # Dispatch the message. Check explicitly with hasattr first. When
+        # using a try/catch with AttributeError errors in the
+        # message_function which result in an AttributeError would cause
+        # us to call msg_generic, which is not what we want.
+        message_function = 'msg_{0}'.format(event_type)
+        if hasattr(self, message_function):
+                message = getattr(self, message_function)(body, repo)
+        else:
             message = self.msg_generic(body, repo, event_type)
 
         # - if we have a message and is it not empty or None
