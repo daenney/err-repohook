@@ -262,7 +262,7 @@ class GithubHook(BotPlugin):
             yield ('Done. Relaying messages from {0} to {1} for '
                    'events: {2}'.format(repo, room, ' '.join(events)))
         else:
-            return HELP_MSG
+            yield HELP_MSG
 
     @botcmd(split_args_with=None)
     def github_routes(self, message, args):
