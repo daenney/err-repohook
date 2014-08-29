@@ -140,11 +140,11 @@ Environment variables
 If you run the bot through an init system make sure the following variables
 are set correctly or the plugin won't load (on Python 3, 2 seems fine):
 
-.. code-block:: shell
+.. code-block:: bash
 
-   export LC_ALL en_US.UTF-8
-   export LANG en_US.UTF-8
-   export LANGUAGE en_US.UTF-8
+   export LC_ALL=en_US.UTF-8
+   export LANG=en_US.UTF-8
+   export LANGUAGE=en_US.UTF-8
 
 Feel free to substitute ``en_US`` for something else but make sure you use
 the UTF-8 variants.
