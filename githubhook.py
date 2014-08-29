@@ -460,10 +460,9 @@ class GithubHook(BotPlugin):
         user = body['pull_request']['user']['login']
         url = body['pull_request']['html_url']
         merged = body['pull_request']['merged']
-        merged_by = body['pull_request']['merged_by']['login']
         if action == 'closed' and merged:
+            user = body['pull_request']['merged_by']['login']
             action = 'merged'
-            user = merged_by
         return tenv().get_template('pull_request.html').render(locals().copy())
 
     @staticmethod
