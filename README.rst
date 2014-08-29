@@ -134,6 +134,33 @@ requests to Err_:
        }
    }
 
+Environment variables
+^^^^^^^^^^^^^^^^^^^^^
+
+If you run the bot through an init system make sure the following variables
+are set correctly or the plugin won't load (on Python 3, 2 seems fine):
+
+.. code-block:: shell
+
+   export LC_ALL en_US.UTF-8
+   export LANG en_US.UTF-8
+   export LANGUAGE en_US.UTF-8
+
+Feel free to substitute ``en_US`` for something else but make sure you use
+the UTF-8 variants.
+
+circus
+~~~~~~
+
+This is all that's needed for Circus_:
+
+.. code-block:: ini
+
+   [env:watcher_name]
+   LC_ALL=en_US.UTF-8
+   LANG=en_US.UTF-8
+   LANGUAGE=en_US.UTF-8
+
 Usage
 -----
 
@@ -293,4 +320,5 @@ License
 This code is licensed under the GPLv3, see the LICENSE file.
 
 .. _Err: http://errbot.ne
-.. _Securing your webhooks: https://developer.github.com/webhooks/securing/
+.. _Securing your webhooks: https://developer.github.com/webhooks/securing
+.. _Circus: http://circus.readthedocs.org
