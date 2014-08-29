@@ -453,7 +453,9 @@ class GithubHook(BotPlugin):
         title = body['issue']['title']
         user = body['issue']['user']['login']
         url = body['issue']['url']
-        assignee = body['issue'].get('assignee').get('login')
+        is_assigned = body['issue']['assignee']
+        if is_assigned is not None:
+            assignee = body['issue']['assignee']['login']
 
         return tenv().get_template('issues.html').render(locals().copy())
 
