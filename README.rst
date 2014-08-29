@@ -14,7 +14,7 @@ The supported Python versions are:
 * Python 3.3+
 
 Python versions prior to 2.7 aren't supported by Err_ and Python versions
-prior to Python 2.7.7 miss the `hmac.compare_digest` method to securely
+prior to Python 2.7.7 miss the ``hmac.compare_digest`` method to securely
 and in constant time compare two digests. This is needed to validate
 incoming requests as coming from Github.
 
@@ -64,7 +64,7 @@ Installation
 ------------
 
 To be able to use webhooks with Err_ you'll need to configure its
-built-in webserver first using the `!webserver` command once you've loaded
+built-in webserver first using the ``!webserver`` command once you've loaded
 the webserver plugin.
 
 We **strongly** advise you to not expose the webserver plugin directly to
@@ -73,7 +73,7 @@ and let those handle terminating SSL traffic for you and passing the
 request on to Err_'s webserver.
 
 The webhook on Github needs to be configured to send a payload to
-https://your-endoint.tld/github with a Content type of `application/json`.
+https://your-endoint.tld/github with a *Content type* of ``application/json``.
 
 In order to install this plugin all you need to do is:
 
@@ -84,7 +84,7 @@ In order to install this plugin all you need to do is:
 Configuration
 -------------
 
-Most Err_ plugins can be configured using the `!config PluginName` action.
+Most Err_ plugins can be configured using the ``!config PluginName`` action.
 However, since this plugin has to handle fairly complex configuration
 separate commands were created for you to set everything up and interact
 with this plugin's settings.
@@ -167,7 +167,7 @@ Usage
 route
 ^^^^^
 
-The `route` command is the first to be executed when adding a new repository
+The ``route`` command is the first to be executed when adding a new repository
 for which events will be forwarded. It takes as arguments the repository
 and the channel you want messages routed to:
 
@@ -203,7 +203,7 @@ In order to list all the routes for a repository:
 
    !github routes example/example
 
-You can pass multiple repositories to `!github routes` by separating them
+You can pass multiple repositories to ``!github routes`` by separating them
 with a space. In return you'll get the route configuration for every of those
 repositories.
 
@@ -227,7 +227,7 @@ The default events to subscribe on can be altered:
    !github defaults push commit issues pull_request
 
 Changing the default will only affect new routes, existing ones will have
-to be updated manually using the `events` command.
+to be updated manually using the ``route`` command.
 
 Issuing that same command without any events will list the currently active
 defaults:
@@ -306,10 +306,10 @@ able to gracefully deal with them all just yet and bugs may arise.
 
 Right now we support:
 
-* `pull_request`
-* `pull_request_review_comment`
-* `issues`
-* `push`
+* ``pull_request``
+* ``pull_request_review_comment``
+* ``issues``
+* ``push``
 
 Feel free to submit pull requests for new features and fixes or issues if you
 encounter problems using this plugin.
