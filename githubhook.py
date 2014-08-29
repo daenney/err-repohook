@@ -8,7 +8,7 @@ import logging
 from errbot import BotPlugin, botcmd, webhook, holder
 from errbot.templating import tenv
 from config import BOT_PREFIX, CHATROOM_FN
-from bottle import abort
+from bottle import abort, response
 
 log = logging.getLogger(name='errbot.plugins.GithubHook')
 
@@ -351,6 +351,7 @@ class GithubHook(BotPlugin):
 
         if event_type == 'ping':
             log.info('Received ping event triggered by {0}'.format(body['hook']['url']))
+            response.status = 204
             return None
 
         repo = body['repository']['full_name']
@@ -360,6 +361,7 @@ class GithubHook(BotPlugin):
             # discard the message
             log.info('Message received for {0} but no such repository '
                       'is configured'.format(repo))
+            response.status = 204
             return None
 
         token = self.get_token(repo)
@@ -369,6 +371,7 @@ class GithubHook(BotPlugin):
             # message about it and discard it.
             log.info('Message received for {0} but no token '
                      'configured'.format(repo))
+            response.status = 204
             return None
 
         if not self.valid_message(request.body, token, signature):
@@ -400,6 +403,8 @@ class GithubHook(BotPlugin):
                 if event_type in events or '*' in events:
                     self.join_room(room, username=CHATROOM_FN)
                     self.send(room, message, message_type='groupchat')
+        response.status = 204
+        return None
 
     @staticmethod
     def validate_incoming(request):
