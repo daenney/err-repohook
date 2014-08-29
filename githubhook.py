@@ -508,7 +508,6 @@ class GithubHook(BotPlugin):
         or logical way to deal with them."""
         return None
 
-
     @staticmethod
     def msg_issue_comment(body, repo):
         action = body['action']
