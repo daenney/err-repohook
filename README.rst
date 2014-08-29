@@ -329,6 +329,6 @@ License
 
 This code is licensed under the GPLv3, see the LICENSE file.
 
-.. _Err: http://errbot.ne
+.. _Err: http://errbot.net
 .. _Securing your webhooks: https://developer.github.com/webhooks/securing
 .. _Circus: http://circus.readthedocs.org
