@@ -197,7 +197,7 @@ class GithubHook(BotPlugin):
         message.append(' • token <repo>: to configure the repository '
                        'secret')
         message.append('Please see https://github.com/daenney/err-githubhook'
-                       '/blob/master/README.md for more information.')
+                       '/blob/master/README.rst for more information.')
         return '\n'.join(message)
 
     @botcmd
