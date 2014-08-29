@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{%- block body -%}
+{%- if action in ['opened', 'closed', 'reopened'] -%}
+  [Github] [{{repo}}] issue <a href="{{url}}">#{{number}}</a> {{action}} by {{user}}.
+{%- elif action in ['labeled', 'unlabeled'] %}
+{%- if action == 'labeled' -%}
+    {%- set act_value = 'added to' -%}
+  {%- else -%}
+    {%- set act_value = 'removed from' -%}
+  {%- endif -%}
+  [Github] [{{repo}}] label {{act_value}} issue <a href="{{url}}">#{{number}}</a> by {{user}}.
+{%- elif action == 'assigned' -%}
+  [Github] [{{repo}}] issue <a href="{{url}}">#{{number}}</a> {{action}} to {{assignee}} by {{user}}.
+{%- elif action == 'unassigned' -%}
+  [Github] [{{repo}}] issue <a href="{{url}}">#{{number}}</a> {{action}} by {{user}}.
+{%- else -%}
+  [Github] [{{repo}}] unknown action: {{action}} for event type: issue received.
+{%- endif -%}
+{%- endblock -%}
