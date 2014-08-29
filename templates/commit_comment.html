@@ -1,0 +1,4 @@
+{% extends "base.html" %}
+{%- block body -%}
+[Github] [{{repo}}] commit <a href="{{url}}">{{sha|truncate(10, '…')}} {%- if line %} at line {{line}} {%- endif %}</a> commented on by {{user}}.
+{%- endblock -%}

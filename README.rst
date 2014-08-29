@@ -320,6 +320,7 @@ Right now we support:
 * ``pull_request_review_comment``
 * ``issues``
 * ``issue_comment``
+* ``commit_comment``
 * ``push``
 
 Feel free to submit pull requests for new features and fixes or issues if you

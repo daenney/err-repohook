@@ -518,3 +518,11 @@ class GithubHook(BotPlugin):
         if action == 'created':
             action = 'commented'
         return tenv().get_template('issue_comment.html').render(locals().copy())
+
+    @staticmethod
+    def msg_commit_comment(body, repo):
+        user = body['comment']['user']['login']
+        url = body['comment']['html_url']
+        line = body['comment']['line']
+        sha = body['comment']['commit_id']
+        return tenv().get_template('commit_comment.html').render(locals().copy())
