@@ -496,3 +496,15 @@ class GithubHook(BotPlugin):
         """Status events are crazy and free form. There's no sane, consistent
         or logical way to deal with them."""
         return None
+
+
+    @staticmethod
+    def msg_issue_comment(body, repo):
+        action = body['action']
+        user = body['comment']['user']['login']
+        number = body['issue']['number']
+        title = body['issue']['title']
+        url = body['issue']['html_url']
+        if action == 'created':
+            action = 'commented'
+        return tenv().get_template('issue_comment.html').render(locals().copy())
