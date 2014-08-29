@@ -469,6 +469,8 @@ class GithubHook(BotPlugin):
         if action == 'closed' and merged:
             user = body['pull_request']['merged_by']['login']
             action = 'merged'
+        if action == 'synchronize':
+            action = 'updated'
         return tenv().get_template('pull_request.html').render(locals().copy())
 
     @staticmethod
