@@ -284,17 +284,27 @@ Commands
 
 A complete overview of the commands.
 
-=======  ===============================   ==========================================================
-Command  Argument(s)                       Result
-=======  ===============================   ==========================================================
-route    <repository> <channel>            routes messages for <repository> to <channel>
-route    <repository> <channel> <events>   routes messages for <repository> to <channel> for <events>
-routes                                     show all repositories and routes
-routes   <repository>                      show all routes for a repository
-routes   <repository> <repository>         show all routes for multiple repositories
-defaults                                   show the current defaults
-defaults <events>                          what events should be routed by default
-token    <repository> <token>              configure the token for a repository
++----------+---------------------------------+----------------------------------------------------------------------+
+| Command  | Arugment(s)                     | Result                                                               |
++==========+=================================+======================================================================+
+| help     |                                 | show usage information                                               |
++----------+---------------------------------+----------------------------------------------------------------------+
+| route    | <repository> <channel>          | relay messages for <repository> to <channel>                         |
++----------+---------------------------------+----------------------------------------------------------------------+
+| route    | <repository> <channel> <events> | relay messages triggered by <events> from <repository> to <channel>  |
++----------+---------------------------------+----------------------------------------------------------------------+
+| routes   |                                 | show all repositories and routes                                     |
++----------+---------------------------------+----------------------------------------------------------------------+
+| routes   | <repository>                    | show all routes for <repository>                                     |
++----------+---------------------------------+----------------------------------------------------------------------+
+| routes   | <repository> <repository>       | show all routes for multiple <repository>'s                          |
++----------+---------------------------------+----------------------------------------------------------------------+
+| defaults |                                 | show all current defaults                                            |
++----------+---------------------------------+----------------------------------------------------------------------+
+| defaults | <events>                        | what events should be relayed by default                             |
++----------+---------------------------------+----------------------------------------------------------------------+
+| token    | <repository> <token>            | configure the token for the repository to validate incoming messages |
++----------+---------------------------------+----------------------------------------------------------------------+
 
 
 Contributing
