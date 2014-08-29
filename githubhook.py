@@ -19,8 +19,7 @@ GITHUB_EVENTS = ['commit_comment', 'create', 'delete', 'deployment',
                  'release', 'status', 'team_add', 'watch', '*']
 
 DEFAULT_EVENTS = ['commit_comment', 'issue_comment', 'issues',
-                  'pull_request_review_comment', 'pull_request', 'push',
-                  'status']
+                  'pull_request_review_comment', 'pull_request', 'push']
 
 DEFAULT_CONFIG = { 'default_events': DEFAULT_EVENTS, 'repositories': {}, }
 
