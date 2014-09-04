@@ -31,6 +31,8 @@ HELP_MSG = ('Please see the output of `{0}github help` for usage '
 REPO_UNKNOWN = 'The repository {0} is unknown to me.'
 EVENT_UNKNOWN = 'Unknown event {0}, skipping.'
 
+README = 'https://github.com/daenney/err-githubhook/blob/master/README.rst'
+
 
 class GithubHook(BotPlugin):
 
@@ -196,8 +198,7 @@ class GithubHook(BotPlugin):
                        'by default')
         message.append(' • token <repo>: to configure the repository '
                        'secret')
-        message.append('Please see https://github.com/daenney/err-githubhook'
-                       '/blob/master/README.rst for more information.')
+        message.append('Please see {0} for more information.'.format(README))
         return '\n'.join(message)
 
     @botcmd(admin_only=True)
@@ -260,6 +261,10 @@ class GithubHook(BotPlugin):
             self.set_events(repo, room, events)
             yield ('Done. Relaying messages from {0} to {1} for '
                    'events: {2}'.format(repo, room, ' '.join(events)))
+            if self.get_token(repo) is None:
+                yield ("Don't forget to set the token for {0}. Instructions "
+                       "on how to do so and why can be found "
+                       "at: {1}.".format(repo, README))
         else:
             yield HELP_MSG
 
