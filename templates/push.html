@@ -1,9 +1,6 @@
-{% extends "base.html" %}
-{%- block body -%}
 {%- if commits == 1 -%}
   {%- set commit = 'commit' -%}
 {%- else -%}
   {%- set commit = 'commits' -%}
 {%- endif -%}
-[Github] [{{repo}}] {{commits}} {{commit}} pushed to <a href="{{url}}">{{branch}}</a> by {{user}}.
-{%- endblock -%}
+[Github] [{{repo}}] {{commits}} {{commit}} pushed to {{url}} - {{branch}} by {{user}}.

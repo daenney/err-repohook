@@ -5,7 +5,7 @@ import hmac
 import json
 import logging
 
-from errbot import BotPlugin, botcmd, webhook, holder
+from errbot import BotPlugin, botcmd, webhook
 from errbot.templating import tenv
 from config import BOT_PREFIX, CHATROOM_FN
 from bottle import abort, response
@@ -157,7 +157,7 @@ class GithubHook(BotPlugin):
         use !config GithubHook <configuration blob> to configure this
         plugin.
         """
-        holder.bot.set_plugin_configuration('GithubHook', self.config)
+        self._bot.set_plugin_configuration('GithubHook', self.config)
 
     def show_repo_config(self, repo):
         """Builds up a complete list of rooms and events for a repository."""
