@@ -157,7 +157,8 @@ class GithubHook(BotPlugin):
         use !config GithubHook <configuration blob> to configure this
         plugin.
         """
-        self._bot.set_plugin_configuration('GithubHook', self.config)
+        self._bot.plugin_manager.set_plugin_configuration('GithubHook',
+                                                          self.config)
 
     def show_repo_config(self, repo):
         """Builds up a complete list of rooms and events for a repository."""
