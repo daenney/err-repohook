@@ -1,0 +1,9 @@
+[Core]
+Name = GitWebHook
+Module = gitwebhook
+
+[Documentation]
+Description = Handle events sent from Github/GitLab to our webhooks endpoint.
+
+[Python]
+Version = 2+

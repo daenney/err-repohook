@@ -1,9 +1,9 @@
 ##########
-GithubHook
+GitWebHook
 ##########
 
-GithubHook is a webhook endpoint for Err_ as well as a set of commands to
-configure the routing of messages to chatrooms.
+GitWebHook is a fork of `GithubHook`_ which itself is a webhook endpoint for Err_
+as well as a set of commands to configure the routing of messages to chatrooms.
 
 This plugin does not depend on anything but Err_ itself and the Python
 standard library.
@@ -22,17 +22,17 @@ Webhooks
 --------
 
 Webhooks are a way for websites, or really any service, to notify another
-service that something happened. Github provides webhooks that based on
+service that something happened. Github/GitLab provide webhooks that based on
 an event send a payload over HTTP to another service which can then react
 accordingly.
 
 They enable near real-time notifications of actions, so if someone pushes
-code to a repository Github will send a HTTP payload with some information
-about that event.
+code to a repository Github/GitLab will send a HTTP payload with some
+information about that event.
 
 This mechanism can be used to receive almost instantaneous notifications of
-activity that happens on a repository on Github. It's a great way to hook up
-your repository to Err_.
+activity that happens on a repository on Github/GitLab. It's a great way
+to hook up your repository to Err_.
 
 Security
 --------
@@ -72,14 +72,15 @@ the internet but instead put it behind a proxying nginx or Apache HTTPD
 and let those handle terminating SSL traffic for you and passing the
 request on to Err_'s webserver.
 
-The webhook on Github needs to be configured to send a payload to
-https://your-endoint.tld/github with a *Content type* of ``application/json``.
+The webhook on Github/GitLab needs to be configured to send a payload to
+https://your-endoint.tld/gitweb with a *Content type* of
+``application/json``.
 
 In order to install this plugin all you need to do is:
 
 .. code-block:: text
 
-   !repos install https://github.com/daenney/err-githubhook.git
+   !repos install https://github.com/asfaltboy/err-gitwebhook.git
 
 Configuration
 -------------
@@ -93,7 +94,7 @@ To view the full configuration of the plugin you can issue the following:
 
 .. code-block:: text
 
-   !github config
+   !gitweb config
 
 There is no way to manipulate the configuration through this command, only
 view it. Since its output contains sensitive data, like the tokens, it is
@@ -108,7 +109,7 @@ An example of nginx plus the webserver plugin:
 
    !load Webserver
    !config Webserver {'HOST': '127.0.0.1', 'PORT': 3141}
-   !reload GithubHook
+   !reload GitWebHook
 
 The nginx configured to handle https://your-endpoint.tld and proxy all
 requests to Err_:
@@ -173,7 +174,7 @@ and the channel you want messages routed to:
 
 .. code-block:: text
 
-   !github route example/example example@example.com
+   !gitweb route example/example example@example.com
 
 By default we will forward the following types of events to that channel:
 
@@ -188,7 +189,7 @@ You can also pass in which events should be routed at creation time:
 
 .. code-block:: text
 
-   !github route example/example example@example.com push issues comment
+   !gitweb route example/example example@example.com push issues comment
 
 Changing these events later simply requires you to call this command again.
 Omitting the events when a route already exists resets the route to the
@@ -201,21 +202,21 @@ In order to list all the routes for a repository:
 
 .. code-block:: text
 
-   !github routes example/example
+   !gitweb routes example/example
 
-You can pass multiple repositories to ``!github routes`` by separating them
+You can pass multiple repositories to ``!gitweb routes`` by separating them
 with a space. In return you'll get the route configuration for every of those
 repositories.
 
 .. code-block:: text
 
-   !github routes example/example test/test
+   !gitweb routes example/example test/test
 
 If you want to list all routes simply call the command with no arguments:
 
 .. code-block:: text
 
-   !github routes
+   !gitweb routes
 
 default events
 ^^^^^^^^^^^^^^
@@ -224,7 +225,7 @@ The default events to subscribe on can be altered:
 
 .. code-block:: text
 
-   !github defaults push commit issues pull_request
+   !gitweb defaults push commit issues pull_request
 
 Changing the default will only affect new routes, existing ones will have
 to be updated manually using the ``route`` command.
@@ -234,7 +235,7 @@ defaults:
 
 .. code-block:: text
 
-   !github defaults
+   !gitweb defaults
 
 token
 ^^^^^
@@ -249,7 +250,7 @@ places it shouldn't.
 
 .. code-block:: text
 
-   !github token example/example TOKEN
+   !gitweb token example/example TOKEN
 
 It is not possible to request the token once it is set. If you believe it
 was set incorrectly, simply set it again to what it should be.
@@ -264,7 +265,7 @@ In order to remove a route issue the following:
 
 .. code-block:: text
 
-   !github remove example/example example@example.com
+   !gitweb remove example/example example@example.com
 
 If this is the last route we know about for that repository any further
 configuration entries for that repository will be removed too, like the
@@ -274,7 +275,7 @@ Should you wish to remove all routes, essentially removing the repository:
 
 .. code-block:: text
 
-   !github remove example/example
+   !gitweb remove example/example
 
 This will also cause the bot to remove any further configuration entries it
 has stored for this repository, such as the token.
@@ -334,3 +335,4 @@ This code is licensed under the GPLv3, see the LICENSE file.
 .. _Err: http://errbot.net
 .. _Securing your webhooks: https://developer.github.com/webhooks/securing
 .. _Circus: http://circus.readthedocs.org
+.. _GithubHook: https://github.com/daenney/err-githubhook

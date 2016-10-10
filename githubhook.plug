@@ -1,9 +1,0 @@
-[Core]
-Name = GithubHook
-Module = githubhook
-
-[Documentation]
-Description = Handle events sent from Github to our webhooks endpoint.
-
-[Python]
-Version = 2+
