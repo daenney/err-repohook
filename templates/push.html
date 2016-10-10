@@ -3,4 +3,6 @@
 {%- else -%}
   {%- set commit = 'commits' -%}
 {%- endif -%}
-[{{repo_name}}] [{{repo}}] {{commits}} {{commit}} pushed to {{url}} - {{branch}} by {{user}}.
+[{{repo_name}}] [{{repo}}/{{branch}}] {{user}} pushed {{commits}} {{commit}}:
+{% for msg in commit_messages %}
+  - {{msg}}{% endfor %}

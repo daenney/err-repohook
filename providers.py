@@ -52,13 +52,13 @@ class GithubHandlers(CommonGitWebProvider):
             user=body['issue']['user']['login'],
             url=body['issue']['url'],
             is_assigned=body['issue']['assignee'],
-            assignee=body['issue']['assignee']['login'] if is_assigned else None
+            assignee=body['issue']['assignee']['login'] if body['issue']['assignee'] else None
         )
 
     def msg_pull_request(self, body, repo):
         action = body['action']
         user = body['pull_request']['user']['login']
-        if action == 'closed' and merged:
+        if action == 'closed' and body['pull_request']['merged']:
             user = body['pull_request']['merged_by']['login']
             action = 'merged'
         if action == 'synchronize':
@@ -135,12 +135,20 @@ class GitLabHandlers(CommonGitWebProvider):
         return super(GitLabHandlers, self).create_message(body, mapped_event_type, repo)
 
     def msg_push(self, body, repo):
+        if body['commits']:
+            last_commit_url = body['commits'][-1]['url']
+            commit_messages = [c['message'][:80].split('\n')[0] for c in body['commits']]
+        else:
+            last_commit_url = body['project']['web_url']
+            commit_messages = []
+
         return self.render_template(
             template='push', body=body, repo=repo,
             user=body['user_name'],
             commits=len(body['commits']),
             branch='/'.join(body['ref'].split('/')[2:]),
-            url=body['commits'][-1]['url'] if body['commits'] else body['project']['web_url'],
+            url=last_commit_url,
+            commit_messages=commit_messages,
         )
 
     def msg_commit_comment(self, body, repo):
