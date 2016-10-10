@@ -140,7 +140,7 @@ class GitLabHandlers(CommonGitWebProvider):
             user=body['user_name'],
             commits=len(body['commits']),
             branch='/'.join(body['ref'].split('/')[2:]),
-            url=body['commits'][-1]['url'] if commits else body['project']['web_url'],
+            url=body['commits'][-1]['url'] if body['commits'] else body['project']['web_url'],
         )
 
     def msg_commit_comment(self, body, repo):
