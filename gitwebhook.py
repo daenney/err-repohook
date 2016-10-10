@@ -354,7 +354,7 @@ class GitWebHook(BotPlugin):
             event_type = request.get_header('X-Github-Event').lower()
             provider = getattr(self, 'github')
         elif 'X-Gitlab-Event' in request.headers:
-            event_type = request.get_header('X-Gitlab-Event').lower()
+            event_type = request.get_header('X-Gitlab-Event').replace(' ', '_').lower()
             provider = getattr(self, 'gitlab')
 
         signature = request.get_header('X-Hub-Signature')
@@ -394,6 +394,7 @@ class GitWebHook(BotPlugin):
             abort(403)
 
         message = provider.create_message(body, event_type, repo)
+        self.log.debug('Prepared message: {0}'.format(message))
 
         # - if we have a message and is it not empty or None
         # - get all rooms for the repository we received the event for
@@ -403,9 +404,12 @@ class GitWebHook(BotPlugin):
         if message and message is not None:
             for room in self.get_routes(repo):
                 events = self.get_events(repo, room)
+                self.log.debug('Routes for room {0}: {1}'.format(room, events))
                 if event_type in events or '*' in events:
-                    self.join_room(room, username=config.CHATROOM_FN)
-                    self.send(room, message, message_type='groupchat')
+                    identifier = self.build_identifier(room)
+                    if 'join_room' in self:
+                        self.join_room(identifier, username=config.CHATROOM_FN)
+                    self.send(identifier, message, message_type='groupchat')
         response.status = 204
         return None
 

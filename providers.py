@@ -6,11 +6,11 @@ GITHUB_EVENTS = ['commit_comment', 'create', 'delete', 'deployment',
                  'issues', 'member', 'page_build', 'public',
                  'pull_request_review_comment', 'pull_request', 'push',
                  'release', 'status', 'team_add', 'watch', '*']
-GITLAB_EVENTS = ['Push Hook', 'Tag Push Hook', 'Issue Hook', 'Note Hook', 'Merge Request Hook']
+GITLAB_EVENTS = ['push_hook', 'tag_push_hook', 'issue_hook', 'note_hook', 'merge_request_hook']
 SUPPORTED_EVENTS = GITHUB_EVENTS + GITLAB_EVENTS
 DEFAULT_EVENTS = ['commit_comment', 'issue_comment', 'issues', 'pull_request_review_comment',
-                  'pull_request', 'push', 'Push Hook', 'Tag Push Hook', 'Issue Hook',
-                  'Note Hook', 'Merge Request Hook']
+                  'pull_request', 'push', 'push_hook', 'tag_push_hook', 'issue_hook',
+                  'note_hook', 'merge_request_hook']
 
 
 class CommonGitWebProvider(object):
@@ -110,30 +110,30 @@ class GitLabHandlers(CommonGitWebProvider):
     def get_repo(self, body):
         return body['project']['name']
 
-    def map_event_type(event_type):
+    def map_event_type(self, event_type):
         return {
-            'Push Hook': 'push',
-            'Issue Hook': 'issue',
-            'Note Hook': 'commit_comment',
+            'push_hook': 'push',
+            'issue_hook': 'issue',
+            'note_hook': 'commit_comment',
         }.get(event_type)
 
     def create_message(self, body, event_type, repo):
-        common_event_type = self.map_event_type(event_type)
-        return super(GitLabHandlers, self).create_message(body, common_event_type, repo)
+        mapped_event_type = self.map_event_type(event_type)
+        return super(GitLabHandlers, self).create_message(body, mapped_event_type, repo)
 
     def msg_generic(self, body, repo, event_type):
         return tenv().get_template('generic.html').render(locals().copy())
 
     def msg_push(self, body, repo):
-        user = body['pusher']['name']
+        user = body['user_name']
         commits = len(body['commits'])
-        branch = body['ref'].split('/')[-1]
-        url = body['compare']
+        branch = '/'.join(body['ref'].split('/')[2:])
+        url = body['commits'][-1]['url'] if commits else body['project']['web_url']
         return tenv().get_template('push.html').render(locals().copy())
 
     def msg_commit_comment(self, body, repo):
-        user = body['comment']['user']['login']
-        url = body['comment']['html_url']
-        line = body['comment']['line']
-        sha = body['comment']['commit_id']
+        user = body['user']['name']
+        url = body['object_attributes']['url']
+        line = body['object_attributes']['note']
+        sha = body['object_attributes']['commit_id']
         return tenv().get_template('commit_comment.html').render(locals().copy())
