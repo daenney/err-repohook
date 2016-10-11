@@ -137,7 +137,10 @@ class GitLabHandlers(CommonGitWebProvider):
     def msg_push(self, body, repo):
         if body['commits']:
             last_commit_url = body['commits'][-1]['url']
-            commit_messages = [c['message'][:80].split('\n')[0] for c in body['commits']]
+            commit_messages = [
+                dict(msg=c['message'][:80].split('\n')[0], hash=c['id'][:8],
+                     url=c['url']) for c in body['commits']
+            ]
         else:
             last_commit_url = body['project']['web_url']
             commit_messages = []
