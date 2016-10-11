@@ -163,7 +163,8 @@ class GitWebHook(BotPlugin):
         if self.has_repo(repo):
             message = ['Routing {0} to:'.format(repo)]
             for room in self.get_routes(repo):
-                message.append(' • {0} for events: {1}'.format(room, ' '.join(self.get_events(repo, room))))
+                message.append(' • `{0}` for events: `{1}`'.format(
+                    room, ' '.join(self.get_events(repo, room))))
             return '\n'.join(message)
         else:
             return REPO_UNKNOWN.format(repo)
@@ -186,7 +187,7 @@ class GitWebHook(BotPlugin):
                        'this plugin (not human friendly)')
         message.append(' • route <repo> <room>: to relay messages from '
                        '<repo> to <room> for events '
-                       '{0}'.format(' '.join(self.get_defaults())))
+                       '`{0}`'.format(' '.join(self.get_defaults())))
         message.append(' • route <repo> <room> <events>: to relay '
                        'messages from <repo> to <room> for <events>')
         message.append(' • routes <repo>: show routes for this repository')
@@ -228,7 +229,7 @@ class GitWebHook(BotPlugin):
                    'receiving: {0}.'.format(' '.join(events)))
         else:
             yield ('Events routed by default: '
-                   '{0}.'.format(' '.join(self.get_defaults())))
+                   '`{0}`.'.format(' '.join(self.get_defaults())))
 
     @botcmd(split_args_with=None)
     def gitweb_route(self, message, args):
@@ -258,8 +259,8 @@ class GitWebHook(BotPlugin):
             else:
                 events = self.get_defaults()
             self.set_events(repo, room, events)
-            yield ('Done. Relaying messages from {0} to {1} for '
-                   'events: {2}'.format(repo, room, ' '.join(events)))
+            yield ('Done. Relaying messages from `{0}` to `{1}` for '
+                   'events: `{2}`'.format(repo, room, ' '.join(events)))
             if self.get_token(repo) is None:
                 yield ("Don't forget to set the token for {0}. Instructions "
                        "on how to do so and why can be found "
