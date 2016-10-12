@@ -408,7 +408,7 @@ class GitWebHook(BotPlugin):
                 self.log.debug('Routes for room {0}: {1}'.format(room, events))
                 if event_type in events or '*' in events:
                     identifier = self.build_identifier(room)
-                    if 'join_room' in self:
+                    if hasattr(self, 'join_room'):
                         self.join_room(identifier, username=config.CHATROOM_FN)
                     self.send(identifier, message, message_type='groupchat')
         response.status = 204
@@ -453,8 +453,11 @@ class GitWebHook(BotPlugin):
 
         The header received from Github is in the form of algorithm=hash.
         """
-        # TODO: Fix validation for Gitlab too
-        return True
+        # TODO: Fix GitLab token validation:
+        #       https://docs.gitlab.com/ce/web_hooks/web_hooks.html#secret-token
+        if not VALIDATION_ENABLED:
+            return True
+
         if signature is None:
             return False
 
