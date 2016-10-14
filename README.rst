@@ -79,7 +79,7 @@ In order to install this plugin all you need to do is:
 
 .. code-block:: text
 
-   !repos install https://github.com/daenney/err-githubhook.git
+   !repos install https://github.com/daenney/err-repohook.git
 
 Configuration
 -------------

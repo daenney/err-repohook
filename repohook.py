@@ -31,7 +31,7 @@ HELP_MSG = ('Please see the output of `{0}github help` for usage '
 REPO_UNKNOWN = 'The repository {0} is unknown to me.'
 EVENT_UNKNOWN = 'Unknown event {0}, skipping.'
 
-README = 'https://github.com/daenney/err-githubhook/blob/master/README.rst'
+README = 'https://github.com/daenney/err-repohook/blob/master/README.rst'
 
 
 class RepoHook(BotPlugin):
