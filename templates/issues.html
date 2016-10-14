@@ -1,16 +1,16 @@
 {%- if action in ['opened', 'closed', 'reopened'] -%}
-    [Github] [{{repo}}] issue {{url}} ({{title}}) {{action}} by {{user}}
+    [Repo] [{{repo}}] issue {{url}} ({{title}}) {{action}} by {{user}}
 {%- elif action in ['labeled', 'unlabeled'] %}
     {%- if action == 'labeled' -%}
         {%- set act_value = 'added to' -%}
     {%- else -%}
         {%- set act_value = 'removed from' -%}
     {%- endif -%}
-    [Github] [{{repo}}] label {{act_value}} issue {{url}} ({{title}}) by {{user}}.
+    [Repo] [{{repo}}] label {{act_value}} issue {{url}} ({{title}}) by {{user}}.
 {%- elif action == 'assigned' -%}
-    [Github] [{{repo}}] issue {{url}} ({{title}}) {{action}} to {{assignee}} by {{user}}.
+    [Repo] [{{repo}}] issue {{url}} ({{title}}) {{action}} to {{assignee}} by {{user}}.
 {%- elif action == 'unassigned' -%}
-    [Github] [{{repo}}] issue {{url}} ({{title}}) {{action}} by {{user}}.
+    [Repo] [{{repo}}] issue {{url}} ({{title}}) {{action}} by {{user}}.
 {%- else -%}
-    [Github] [{{repo}}] unknown action: {{action}} for event type: issue received.
+    [Repo] [{{repo}}] unknown action: {{action}} for event type: issue received.
 {%- endif -%}

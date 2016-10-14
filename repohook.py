@@ -10,7 +10,7 @@ from errbot.templating import tenv
 from config import BOT_PREFIX, CHATROOM_FN
 from bottle import abort, response
 
-log = logging.getLogger(name='errbot.plugins.GithubHook')
+log = logging.getLogger(name='errbot.plugins.RepoHook')
 
 GITHUB_EVENTS = ['commit_comment', 'create', 'delete', 'deployment',
                  'deployment_status', 'fork', 'gollum', 'issue_comment',
@@ -34,7 +34,7 @@ EVENT_UNKNOWN = 'Unknown event {0}, skipping.'
 README = 'https://github.com/daenney/err-githubhook/blob/master/README.rst'
 
 
-class GithubHook(BotPlugin):
+class RepoHook(BotPlugin):
 
     min_err_version = '2.1.0'
 
@@ -49,7 +49,7 @@ class GithubHook(BotPlugin):
             config = configuration
         else:
             config = DEFAULT_CONFIG
-        super(GithubHook, self).configure(config)
+        super(RepoHook, self).configure(config)
 
     #################################################################
     # Convenience methods to get, check or set configuration options.
@@ -154,10 +154,10 @@ class GithubHook(BotPlugin):
         """Save the current configuration.
 
         This method takes care of saving the configuration since we can't
-        use !config GithubHook <configuration blob> to configure this
+        use !config RepoHook <configuration blob> to configure this
         plugin.
         """
-        self._bot.plugin_manager.set_plugin_configuration('GithubHook',
+        self._bot.plugin_manager.set_plugin_configuration('RepoHook',
                                                           self.config)
 
     def show_repo_config(self, repo):
@@ -175,12 +175,12 @@ class GithubHook(BotPlugin):
     ###########################################################
 
     @botcmd
-    def github(self, *args):
-        """Github root command, return usage information."""
+    def repo(self, *args):
+        """Repo root command, return usage information."""
         return self.github_help()
 
     @botcmd
-    def github_help(self, *args):
+    def repo_help(self, *args):
         """Output help."""
         message = []
         message.append('This plugin has multiple commands: ')
@@ -203,20 +203,20 @@ class GithubHook(BotPlugin):
         return '\n'.join(message)
 
     @botcmd(admin_only=True)
-    def github_config(self, *args):
+    def repo_config(self, *args):
         """Returns the current configuration of the plugin."""
         # pprint can't deal with nested dicts, json.dumps is aces.
         return json.dumps(self.config, indent=4, sort_keys=True)
 
     @botcmd(admin_only=True)
-    def github_reset(self, *args):
+    def repo_reset(self, *args):
         """Nuke the complete configuration."""
         self.config = DEFAULT_CONFIG
         self.save_config()
         return 'Done. All configuration has been expunged.'
 
     @botcmd(split_args_with=None)
-    def github_defaults(self, message, args):
+    def repo_defaults(self, message, args):
         """Get or set what events are relayed by default for new routes."""
         if args:
             events = []
@@ -233,7 +233,7 @@ class GithubHook(BotPlugin):
                    '{0}.'.format(' '.join(self.get_defaults())))
 
     @botcmd(split_args_with=None)
-    def github_route(self, message, args):
+    def repo_route(self, message, args):
         """Map a repository to a chatroom, essentially creating a route.
 
         This takes two or three arguments: author/repo, a chatroom and
@@ -270,7 +270,7 @@ class GithubHook(BotPlugin):
             yield HELP_MSG
 
     @botcmd(split_args_with=None)
-    def github_routes(self, message, args):
+    def repo_routes(self, message, args):
         """Displays the routes for one, multiple or all repositories."""
         if args:
             for repo in args:
@@ -289,11 +289,11 @@ class GithubHook(BotPlugin):
                 yield 'No repositories configured, nothing to show.'
 
     @botcmd(split_args_with=None)
-    def github_token(self, message, args):
+    def repo_token(self, message, args):
         """Register the secret token for a repository.
 
         This token is needed to validate the incoming request as coming from
-        Github. It must be configured on your repository's webhook settings
+        a repo. It must be configured on your repository's webhook settings
         too.
         """
         if len(args) != 2:
@@ -308,7 +308,7 @@ class GithubHook(BotPlugin):
                 return REPO_UNKNOWN.format(repo)
 
     @botcmd(split_args_with=None)
-    def github_remove(self, message, args):
+    def repo_remove(self, message, args):
         """Remove a route or a repository.
 
         If only one argument is passed all configuration for that repository
@@ -441,7 +441,7 @@ class GithubHook(BotPlugin):
     def valid_message(message, token, signature):
         """Validate the signature of the incoming payload.
 
-        The header received from Github is in the form of algorithm=hash.
+        The header received from a repo is in the form of algorithm=hash.
         """
         if signature is None:
             return False

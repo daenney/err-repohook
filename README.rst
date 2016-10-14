@@ -1,8 +1,8 @@
 ##########
-GithubHook
+RepoHook
 ##########
 
-GithubHook is a webhook endpoint for Err_ as well as a set of commands to
+RepoHook is a webhook endpoint for Err_ as well as a set of commands to
 configure the routing of messages to chatrooms.
 
 This plugin does not depend on anything but Err_ itself and the Python
@@ -93,7 +93,7 @@ To view the full configuration of the plugin you can issue the following:
 
 .. code-block:: text
 
-   !github config
+   !repo config
 
 There is no way to manipulate the configuration through this command, only
 view it. Since its output contains sensitive data, like the tokens, it is
@@ -108,7 +108,7 @@ An example of nginx plus the webserver plugin:
 
    !load Webserver
    !config Webserver {'HOST': '127.0.0.1', 'PORT': 3141}
-   !reload GithubHook
+   !reload RepoHook
 
 The nginx configured to handle https://your-endpoint.tld and proxy all
 requests to Err_:
@@ -173,7 +173,7 @@ and the channel you want messages routed to:
 
 .. code-block:: text
 
-   !github route example/example example@example.com
+   !repo route example/example example@example.com
 
 By default we will forward the following types of events to that channel:
 
@@ -188,7 +188,7 @@ You can also pass in which events should be routed at creation time:
 
 .. code-block:: text
 
-   !github route example/example example@example.com push issues comment
+   !repo route example/example example@example.com push issues comment
 
 Changing these events later simply requires you to call this command again.
 Omitting the events when a route already exists resets the route to the
@@ -201,21 +201,21 @@ In order to list all the routes for a repository:
 
 .. code-block:: text
 
-   !github routes example/example
+   !repo routes example/example
 
-You can pass multiple repositories to ``!github routes`` by separating them
+You can pass multiple repositories to ``!repo routes`` by separating them
 with a space. In return you'll get the route configuration for every of those
 repositories.
 
 .. code-block:: text
 
-   !github routes example/example test/test
+   !repo routes example/example test/test
 
 If you want to list all routes simply call the command with no arguments:
 
 .. code-block:: text
 
-   !github routes
+   !repo routes
 
 default events
 ^^^^^^^^^^^^^^
@@ -224,7 +224,7 @@ The default events to subscribe on can be altered:
 
 .. code-block:: text
 
-   !github defaults push commit issues pull_request
+   !repo defaults push commit issues pull_request
 
 Changing the default will only affect new routes, existing ones will have
 to be updated manually using the ``route`` command.
@@ -234,7 +234,7 @@ defaults:
 
 .. code-block:: text
 
-   !github defaults
+   !repo defaults
 
 token
 ^^^^^
@@ -249,7 +249,7 @@ places it shouldn't.
 
 .. code-block:: text
 
-   !github token example/example TOKEN
+   !repo token example/example TOKEN
 
 It is not possible to request the token once it is set. If you believe it
 was set incorrectly, simply set it again to what it should be.
@@ -264,7 +264,7 @@ In order to remove a route issue the following:
 
 .. code-block:: text
 
-   !github remove example/example example@example.com
+   !repo remove example/example example@example.com
 
 If this is the last route we know about for that repository any further
 configuration entries for that repository will be removed too, like the
@@ -274,7 +274,7 @@ Should you wish to remove all routes, essentially removing the repository:
 
 .. code-block:: text
 
-   !github remove example/example
+   !repo remove example/example
 
 This will also cause the bot to remove any further configuration entries it
 has stored for this repository, such as the token.
