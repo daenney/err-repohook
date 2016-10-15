@@ -3,33 +3,27 @@ from __future__ import unicode_literals
 import hashlib
 import hmac
 import json
-import logging
 
-from errbot import BotPlugin, botcmd, webhook
-from errbot.templating import tenv
-from config import BOT_PREFIX, CHATROOM_FN
 from bottle import abort, response
+from errbot import BotPlugin, botcmd, webhook
+from errbot.rendering import md_escape
 
-log = logging.getLogger(name='errbot.plugins.RepoHook')
+import config
 
-GITHUB_EVENTS = ['commit_comment', 'create', 'delete', 'deployment',
-                 'deployment_status', 'fork', 'gollum', 'issue_comment',
-                 'issues', 'member', 'page_build', 'public',
-                 'pull_request_review_comment', 'pull_request', 'push',
-                 'release', 'status', 'team_add', 'watch', '*']
+from providers import GitLabHandlers, GithubHandlers, SUPPORTED_EVENTS, DEFAULT_EVENTS
 
-DEFAULT_EVENTS = ['commit_comment', 'issue_comment', 'issues',
-                  'pull_request_review_comment', 'pull_request', 'push']
+DEFAULT_CONFIG = {'default_events': DEFAULT_EVENTS, 'repositories': {}, }
 
-DEFAULT_CONFIG = { 'default_events': DEFAULT_EVENTS, 'repositories': {}, }
+REQUIRED_HEADERS = [('X-Github-Event', 'X-Gitlab-Event')]
+VALIDATION_ENABLED = getattr(config, 'VALIDATE_SIGNATURE', True)
+if VALIDATION_ENABLED:
+    REQUIRED_HEADERS.append(('X-Hub-Signature', 'X-Gitlab-Token'), )
 
-REQUIRED_HEADERS = ['X-Hub-Signature', 'X-Github-Event']
+HELP_MSG = ('Please see the output of `{0}repohook help` for usage '
+            'and configuration instructions.'.format(config.BOT_PREFIX))
 
-HELP_MSG = ('Please see the output of `{0}github help` for usage '
-            'and configuration instructions.'.format(BOT_PREFIX))
-
-REPO_UNKNOWN = 'The repository {0} is unknown to me.'
-EVENT_UNKNOWN = 'Unknown event {0}, skipping.'
+REPO_UNKNOWN = 'The repository `{0}` is unknown to me.'
+EVENT_UNKNOWN = 'Unknown event `{0}`, skipping.'
 
 README = 'https://github.com/daenney/err-repohook/blob/master/README.rst'
 
@@ -37,6 +31,11 @@ README = 'https://github.com/daenney/err-repohook/blob/master/README.rst'
 class RepoHook(BotPlugin):
 
     min_err_version = '2.1.0'
+
+    def __init__(self, *args, **kwargs):
+        super(RepoHook, self).__init__(*args, **kwargs)
+        self.github = GithubHandlers()
+        self.gitlab = GitLabHandlers()
 
     def get_configuration_template(self):
         return HELP_MSG
@@ -141,7 +140,7 @@ class RepoHook(BotPlugin):
         If the repository is unknown to us, add the repository first.
         """
         if self.get_repo(repo) is None:
-            self.config['repositories'][repo] = { 'routes': {}, 'token': None }
+            self.config['repositories'][repo] = {'routes': {}, 'token': None}
         self.config['repositories'][repo]['routes'][room] = {}
         self.save_config()
 
@@ -163,9 +162,10 @@ class RepoHook(BotPlugin):
     def show_repo_config(self, repo):
         """Builds up a complete list of rooms and events for a repository."""
         if self.has_repo(repo):
-            message = ['Routing {0} to:'.format(repo)]
+            message = ['Routing `{0}` to:'.format(repo)]
             for room in self.get_routes(repo):
-                message.append(' • {0} for events: {1}'.format(room, ' '.join(self.get_events(repo, room))))
+                message.append(' • `{0}` for events: {1}'.format(
+                    room, md_escape(' '.join(self.get_events(repo, room)))))
             return '\n'.join(message)
         else:
             return REPO_UNKNOWN.format(repo)
@@ -175,53 +175,53 @@ class RepoHook(BotPlugin):
     ###########################################################
 
     @botcmd
-    def repo(self, *args):
-        """Repo root command, return usage information."""
-        return self.github_help()
+    def repohook(self, *args):
+        """RepoHook root command, return usage information."""
+        return self.repohook_help()
 
     @botcmd
-    def repo_help(self, *args):
+    def repohook_help(self, *args):
         """Output help."""
         message = []
         message.append('This plugin has multiple commands: ')
         message.append(' • config: to display the full configuration of '
                        'this plugin (not human friendly)')
-        message.append(' • route <repo> <room>: to relay messages from '
-                       '<repo> to <room> for events '
-                       '{0}'.format(' '.join(self.get_defaults())))
-        message.append(' • route <repo> <room> <events>: to relay '
-                       'messages from <repo> to <room> for <events>')
-        message.append(' • routes <repo>: show routes for this repository')
+        message.append(' • route `<repo> <room>`: to relay messages from '
+                       '`<repo>` to `<room>` for events '
+                       '{0}'.format(md_escape(' '.join(self.get_defaults()))))
+        message.append(' • route `<repo> <room> <events>`: to relay '
+                       'messages from `<repo>` to `<room>` for `<events>`')
+        message.append(' • routes `<repo>`: show routes for this repository')
         message.append(' • routes: to display all routes')
-        message.append(' • defaults <events>: to configure the events we '
+        message.append(' • defaults `<events>`: to configure the events we '
                        'should forward by default')
         message.append(' • defaults: to show the events to be forwarded '
                        'by default')
-        message.append(' • token <repo>: to configure the repository '
+        message.append(' • token `<repo>`: to configure the repository '
                        'secret')
         message.append('Please see {0} for more information.'.format(README))
         return '\n'.join(message)
 
     @botcmd(admin_only=True)
-    def repo_config(self, *args):
+    def repohook_config(self, *args):
         """Returns the current configuration of the plugin."""
         # pprint can't deal with nested dicts, json.dumps is aces.
         return json.dumps(self.config, indent=4, sort_keys=True)
 
     @botcmd(admin_only=True)
-    def repo_reset(self, *args):
+    def repohook_reset(self, *args):
         """Nuke the complete configuration."""
         self.config = DEFAULT_CONFIG
         self.save_config()
         return 'Done. All configuration has been expunged.'
 
     @botcmd(split_args_with=None)
-    def repo_defaults(self, message, args):
+    def repohook_defaults(self, message, args):
         """Get or set what events are relayed by default for new routes."""
         if args:
             events = []
             for event in args:
-                if event in GITHUB_EVENTS:
+                if event in SUPPORTED_EVENTS:
                     events.append(event)
                 else:
                     yield EVENT_UNKNOWN.format(event)
@@ -230,10 +230,10 @@ class RepoHook(BotPlugin):
                    'receiving: {0}.'.format(' '.join(events)))
         else:
             yield ('Events routed by default: '
-                   '{0}.'.format(' '.join(self.get_defaults())))
+                   '{0}.'.format(md_escape(' '.join(self.get_defaults()))))
 
     @botcmd(split_args_with=None)
-    def repo_route(self, message, args):
+    def repohook_route(self, message, args):
         """Map a repository to a chatroom, essentially creating a route.
 
         This takes two or three arguments: author/repo, a chatroom and
@@ -254,23 +254,23 @@ class RepoHook(BotPlugin):
 
             if events:
                 for event in events[:]:
-                    if event not in GITHUB_EVENTS:
+                    if event not in SUPPORTED_EVENTS:
                         events.remove(event)
                         yield EVENT_UNKNOWN.format(event)
             else:
                 events = self.get_defaults()
             self.set_events(repo, room, events)
-            yield ('Done. Relaying messages from {0} to {1} for '
-                   'events: {2}'.format(repo, room, ' '.join(events)))
+            yield ('Done. Relaying messages from `{0}` to `{1}` for '
+                   'events: {2}'.format(repo, room, md_escape(' '.join(events))))
             if self.get_token(repo) is None:
-                yield ("Don't forget to set the token for {0}. Instructions "
+                yield ("Don't forget to set the token for `{0}`. Instructions "
                        "on how to do so and why can be found "
                        "at: {1}.".format(repo, README))
         else:
             yield HELP_MSG
 
     @botcmd(split_args_with=None)
-    def repo_routes(self, message, args):
+    def repohook_routes(self, message, args):
         """Displays the routes for one, multiple or all repositories."""
         if args:
             for repo in args:
@@ -289,12 +289,12 @@ class RepoHook(BotPlugin):
                 yield 'No repositories configured, nothing to show.'
 
     @botcmd(split_args_with=None)
-    def repo_token(self, message, args):
+    def repohook_token(self, message, args):
         """Register the secret token for a repository.
 
         This token is needed to validate the incoming request as coming from
-        a repo. It must be configured on your repository's webhook settings
-        too.
+        the repoisitory. It must be configured on your repository's webhook
+        settings too.
         """
         if len(args) != 2:
             return HELP_MSG
@@ -308,7 +308,7 @@ class RepoHook(BotPlugin):
                 return REPO_UNKNOWN.format(repo)
 
     @botcmd(split_args_with=None)
-    def repo_remove(self, message, args):
+    def repohook_remove(self, message, args):
         """Remove a route or a repository.
 
         If only one argument is passed all configuration for that repository
@@ -335,7 +335,7 @@ class RepoHook(BotPlugin):
         else:
             yield HELP_MSG
 
-    @webhook(r'/github', methods=('POST',), raw=True)
+    @webhook(r'/repohook', methods=('POST',), raw=True)
     def receive(self, request):
         """Handle the incoming payload.
 
@@ -349,54 +349,54 @@ class RepoHook(BotPlugin):
         """
 
         if not self.validate_incoming(request):
+            self.log.warn('Request is invalid {0}'.format(str(vars(request))))
             abort(400)
 
-        event_type = request.get_header('X-Github-Event').lower()
+        if 'X-Github-Event' in request.headers:
+            event_type = request.get_header('X-Github-Event').lower()
+            provider = getattr(self, 'github')
+        elif 'X-Gitlab-Event' in request.headers:
+            event_type = request.get_header('X-Gitlab-Event').replace(' ', '_').lower()
+            provider = getattr(self, 'gitlab')
+
         signature = request.get_header('X-Hub-Signature')
         body = request.json
 
         if event_type == 'ping':
-            log.info('Received ping event triggered by {0}'.format(body['hook']['url']))
+            self.log.info('Received ping event triggered by {0}'.format(body['hook']['url']))
             response.status = 204
             return None
 
-        repo = body['repository']['full_name']
+        repo = provider.get_repo(body)
 
         if self.get_repo(repo) is None:
             # Not a repository we know so accept the payload, return 200 but
             # discard the message
-            log.info('Message received for {0} but no such repository '
-                      'is configured'.format(repo))
+            self.log.info('Message received for {0} but no such repository '
+                          'is configured'.format(repo))
             response.status = 204
             return None
 
         token = self.get_token(repo)
-        if token is None:
+        if token is None and VALIDATION_ENABLED:
             # No token, no validation. Accept the payload since it's not their
             # fault that the user hasn't configured a token yet but log a
             # message about it and discard it.
-            log.info('Message received for {0} but no token '
-                     'configured'.format(repo))
+            self.log.info('Message received for {0} but no token '
+                          'configured'.format(repo))
             response.status = 204
             return None
 
         if not self.valid_message(request.body, token, signature):
             ip = request.get_header('X-Real-IP')
             if ip is None:
-                log.warn('Event received for {0} but could not validate it.'.format(repo))
+                self.log.warn('Event received for {0} but could not validate it.'.format(repo))
             else:
-                log.warn('Event received for {0} from {1} but could not validate it.'.format(repo, ip))
+                self.log.warn('Event received for {0} from {1} but could not validate it.'.format(repo, ip))
             abort(403)
 
-        # Dispatch the message. Check explicitly with hasattr first. When
-        # using a try/catch with AttributeError errors in the
-        # message_function which result in an AttributeError would cause
-        # us to call msg_generic, which is not what we want.
-        message_function = 'msg_{0}'.format(event_type)
-        if hasattr(self, message_function):
-            message = getattr(self, message_function)(body, repo)
-        else:
-            message = self.msg_generic(body, repo, event_type)
+        message = provider.create_message(body, event_type, repo)
+        self.log.debug('Prepared message: {0}'.format(message))
 
         # - if we have a message and is it not empty or None
         # - get all rooms for the repository we received the event for
@@ -406,14 +406,16 @@ class RepoHook(BotPlugin):
         if message and message is not None:
             for room in self.get_routes(repo):
                 events = self.get_events(repo, room)
+                self.log.debug('Routes for room {0}: {1}'.format(room, events))
                 if event_type in events or '*' in events:
-                    self.join_room(room, username=CHATROOM_FN)
-                    self.send(room, message, message_type='groupchat')
+                    identifier = self.build_identifier(room)
+                    if hasattr(self, 'join_room'):
+                        self.join_room(identifier, username=config.CHATROOM_FN)
+                    self.send(identifier, message, message_type='groupchat')
         response.status = 204
         return None
 
-    @staticmethod
-    def validate_incoming(request):
+    def validate_incoming(self, request):
         """Validate the incoming request:
 
           * Check if the headers we need exist
@@ -422,17 +424,26 @@ class RepoHook(BotPlugin):
         """
 
         if request.content_type != 'application/json':
+            self.log.warn('ContentType is not json: {}'.format(request.content_type))
             return False
         for header in REQUIRED_HEADERS:
-            if request.get_header(header) is None:
-                return False
+            if isinstance(header, tuple):
+                if not any(request.get_header(h) for h in header):
+                    self.log.warn('Missing (any of) headers: {}'.format(header))
+                    return False
+            else:
+                if request.get_header(header) is None:
+                    self.log.warn('Missing header: {}'.format(header))
+                    return False
 
         try:
             body = request.json
         except ValueError:
+            self.log.warn('Request body is not json: {}'.format(request))
             return False
 
         if not isinstance(body, dict):
+            self.log.warn('Request body is not valid json: {}'.format(body))
             return False
 
         return True
@@ -441,8 +452,13 @@ class RepoHook(BotPlugin):
     def valid_message(message, token, signature):
         """Validate the signature of the incoming payload.
 
-        The header received from a repo is in the form of algorithm=hash.
+        The header received from Github is in the form of algorithm=hash.
         """
+        # TODO: Fix GitLab token validation:
+        #       https://docs.gitlab.com/ce/web_hooks/web_hooks.html#secret-token
+        if not VALIDATION_ENABLED:
+            return True
+
         if signature is None:
             return False
 
@@ -456,79 +472,3 @@ class RepoHook(BotPlugin):
 
         mac = hmac.new(token.encode(), msg=message.read(), digestmod=hashlib.sha1).hexdigest()
         return hmac.compare_digest(mac, sig)
-
-    @staticmethod
-    def msg_generic(body, repo, event_type):
-        return tenv().get_template('generic.html').render(locals().copy())
-
-    @staticmethod
-    def msg_issues(body, repo):
-        action = body['action']
-        number = body['issue']['number']
-        title = body['issue']['title']
-        user = body['issue']['user']['login']
-        url = body['issue']['url']
-        is_assigned = body['issue']['assignee']
-        if is_assigned is not None:
-            assignee = body['issue']['assignee']['login']
-
-        return tenv().get_template('issues.html').render(locals().copy())
-
-    @staticmethod
-    def msg_pull_request(body, repo):
-        action = body['action']
-        number = body['pull_request']['number']
-        user = body['pull_request']['user']['login']
-        url = body['pull_request']['html_url']
-        merged = body['pull_request']['merged']
-        if action == 'closed' and merged:
-            user = body['pull_request']['merged_by']['login']
-            action = 'merged'
-        if action == 'synchronize':
-            action = 'updated'
-        return tenv().get_template('pull_request.html').render(locals().copy())
-
-    @staticmethod
-    def msg_pull_request_review_comment(body, repo):
-        action = body['action']
-        user = body['comment']['user']['login']
-        line = body['comment']['position']
-        l_url = body['comment']['html_url']
-        pr = body['pull_request']['number']
-        url = body['pull_request']['html_url']
-        if action == 'created':
-            action = 'commented'
-        return tenv().get_template('pull_request_review_comment.html').render(locals().copy())
-
-    @staticmethod
-    def msg_push(body, repo):
-        user = body['pusher']['name']
-        commits = len(body['commits'])
-        branch = body['ref'].split('/')[-1]
-        url = body['compare']
-        return tenv().get_template('push.html').render(locals().copy())
-
-    @staticmethod
-    def msg_status(*args):
-        """Status events are crazy and free form. There's no sane, consistent
-        or logical way to deal with them."""
-        return None
-
-    @staticmethod
-    def msg_issue_comment(body, repo):
-        action = body['action']
-        user = body['comment']['user']['login']
-        number = body['issue']['number']
-        title = body['issue']['title']
-        url = body['issue']['html_url']
-        if action == 'created':
-            action = 'commented'
-        return tenv().get_template('issue_comment.html').render(locals().copy())
-
-    @staticmethod
-    def msg_commit_comment(body, repo):
-        user = body['comment']['user']['login']
-        url = body['comment']['html_url']
-        line = body['comment']['line']
-        sha = body['comment']['commit_id']
-        return tenv().get_template('commit_comment.html').render(locals().copy())
