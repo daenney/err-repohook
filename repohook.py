@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
-import hashlib
-import hmac
 import json
 
 from bottle import abort, response
@@ -359,7 +357,6 @@ class RepoHook(BotPlugin):
             event_type = request.get_header('X-Gitlab-Event').replace(' ', '_').lower()
             provider = getattr(self, 'gitlab')
 
-        signature = request.get_header('X-Hub-Signature')
         body = request.json
 
         if event_type == 'ping':
@@ -387,7 +384,7 @@ class RepoHook(BotPlugin):
             response.status = 204
             return None
 
-        if not self.valid_message(request.body, token, signature):
+        if VALIDATION_ENABLED and not self.provider.valid_message(request, token):
             ip = request.get_header('X-Real-IP')
             if ip is None:
                 self.log.warn('Event received for {0} but could not validate it.'.format(repo))
@@ -447,28 +444,3 @@ class RepoHook(BotPlugin):
             return False
 
         return True
-
-    @staticmethod
-    def valid_message(message, token, signature):
-        """Validate the signature of the incoming payload.
-
-        The header received from Github is in the form of algorithm=hash.
-        """
-        # TODO: Fix GitLab token validation:
-        #       https://docs.gitlab.com/ce/web_hooks/web_hooks.html#secret-token
-        if not VALIDATION_ENABLED:
-            return True
-
-        if signature is None:
-            return False
-
-        try:
-            alg, sig = signature.split('=')
-        except ValueError:
-            return False
-
-        if alg != 'sha1':
-            return False
-
-        mac = hmac.new(token.encode(), msg=message.read(), digestmod=hashlib.sha1).hexdigest()
-        return hmac.compare_digest(mac, sig)

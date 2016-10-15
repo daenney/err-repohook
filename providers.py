@@ -1,5 +1,7 @@
-from errbot.templating import tenv
+import hashlib
+import hmac
 
+from errbot.templating import tenv
 
 GITHUB_EVENTS = ['commit_comment', 'create', 'delete', 'deployment',
                  'deployment_status', 'fork', 'gollum', 'issue_comment',
@@ -39,6 +41,31 @@ class CommonGitWebProvider(object):
 
 class GithubHandlers(CommonGitWebProvider):
     name = 'Github'
+
+    @staticmethod
+    def valid_message(request, token):
+        """Validate the signature of the incoming payload.
+
+        The header received from Github is in the form of algorithm=hash.
+        """
+        # TODO: Fix GitLab token validation:
+        #       https://docs.gitlab.com/ce/web_hooks/web_hooks.html#secret-token
+        signature = request.get_header('X-Hub-Signature')
+
+        if signature is None:
+            return False
+
+        try:
+            alg, sig = signature.split('=')
+        except ValueError:
+            return False
+
+        if alg != 'sha1':
+            return False
+
+        message = request.body.read()
+        mac = hmac.new(token.encode(), msg=message, digestmod=hashlib.sha1).hexdigest()
+        return hmac.compare_digest(mac, sig)
 
     def get_repo(self, body):
         return body['repository']['full_name']
@@ -119,6 +146,17 @@ class GithubHandlers(CommonGitWebProvider):
 
 class GitLabHandlers(CommonGitWebProvider):
     name = 'GitLab'
+
+    @staticmethod
+    def valid_message(request, token):
+        """Validate the signature of the incoming payload.
+
+        The header received from GitLab is in the form of algorithm=hash.
+        # TODO: Fix GitLab token validation:
+        #       https://docs.gitlab.com/ce/web_hooks/web_hooks.html#secret-token
+        """
+        signature = request.get_header('X-Gitlab-Token')
+        return True
 
     def get_repo(self, body):
         return body['project']['name']
