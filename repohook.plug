@@ -1,0 +1,9 @@
+[Core]
+Name = RepoHook
+Module = repohook
+
+[Documentation]
+Description = Handle events sent from a repository to our webhooks endpoint.
+
+[Python]
+Version = 2+
