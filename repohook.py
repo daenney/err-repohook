@@ -384,7 +384,7 @@ class RepoHook(BotPlugin):
             response.status = 204
             return None
 
-        if VALIDATION_ENABLED and not self.provider.valid_message(request, token):
+        if VALIDATION_ENABLED and not provider.valid_message(request, token):
             ip = request.get_header('X-Real-IP')
             if ip is None:
                 self.log.warn('Event received for {0} but could not validate it.'.format(repo))
