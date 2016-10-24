@@ -192,6 +192,17 @@ class GitLabHandlers(CommonGitWebProvider):
             commit_messages=commit_messages,
         )
 
+    def msg_issue(self, body, repo):
+        action = {'reopen': 'reopened', 'close': 'closed', 'open': 'opened'}.get(body['object_attributes']['action'])
+        if action:
+            return self.render_template(
+                template='issues', body=body, repo=repo,
+                action=action,
+                title=body['object_attributes']['title'],
+                user=body['user']['name'],
+                url=body['object_attributes']['url']
+            )
+
     def msg_comment(self, body, repo):
         noteable = body['object_attributes']['noteable_type'].lower()
         if noteable == "issue":

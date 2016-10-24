@@ -9,7 +9,7 @@
     \[{{repo_name}}] \[{{repo}}] label {{act_value}} issue {{url}} ({{title}}) by {{user}}.
 {%- elif action == 'assigned' -%}
     \[{{repo_name}}] \[{{repo}}] issue {{url}} ({{title}}) {{action}} to {{assignee}} by {{user}}.
-{%- elif action == 'unassigned' -%}
+{%- elif action == 'unassigned' or action == 'updated' -%}
     \[{{repo_name}}] \[{{repo}}] issue {{url}} ({{title}}) {{action}} by {{user}}.
 {%- else -%}
     \[{{repo_name}}] \[{{repo}}] unknown action: {{action}} for event type: issue received.
