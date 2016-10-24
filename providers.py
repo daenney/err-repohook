@@ -165,7 +165,7 @@ class GitLabHandlers(CommonGitWebProvider):
         return {
             'push_hook': 'push',
             'issue_hook': 'issue',
-            'note_hook': 'commit_comment',
+            'note_hook': 'comment',
         }.get(event_type)
 
     def create_message(self, body, event_type, repo):
@@ -192,11 +192,27 @@ class GitLabHandlers(CommonGitWebProvider):
             commit_messages=commit_messages,
         )
 
-    def msg_commit_comment(self, body, repo):
-        return self.render_template(
-            template='commit_comment', body=body, repo=repo,
-            user=body['user']['name'],
-            url=body['object_attributes']['url'],
-            line=body['object_attributes']['note'],
-            sha=body['object_attributes']['commit_id'],
-        )
+    def msg_comment(self, body, repo):
+        noteable = body['object_attributes']['noteable_type'].lower()
+        if noteable == "issue":
+            return self.render_template(
+                template='issue_comment', body=body, repo=repo,
+                user=body['user']['name'],
+                url=body['object_attributes']['url'],
+                action='commented',
+                title=body['issue']['title']
+            )
+        elif noteable == "commit":
+            return self.render_template(
+                template='commit_comment', body=body, repo=repo,
+                user=body['user']['name'],
+                url=body['object_attributes']['url'],
+                line=None,
+            )
+        elif noteable == "mergerequest":
+            return self.render_template(
+                template='merge_request_comment', body=body, repo=repo,
+                user=body['user']['name'],
+                url=body['object_attributes']['url'],
+            )
+
