@@ -28,7 +28,7 @@ README = 'https://github.com/daenney/err-repohook/blob/master/README.rst'
 
 class RepoHook(BotPlugin):
 
-    min_err_version = '2.1.0'
+    min_err_version = '5.0.0'
 
     def __init__(self, *args, **kwargs):
         super(RepoHook, self).__init__(*args, **kwargs)
@@ -408,7 +408,7 @@ class RepoHook(BotPlugin):
                     identifier = self.build_identifier(room)
                     if hasattr(self, 'join_room'):
                         self.join_room(identifier, username=config.CHATROOM_FN)
-                    self.send(identifier, message, message_type='groupchat')
+                    self.send(identifier, message)
         response.status = 204
         return None
 
